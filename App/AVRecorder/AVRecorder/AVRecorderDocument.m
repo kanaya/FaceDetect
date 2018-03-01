@@ -51,14 +51,14 @@
 @interface AVRecorderDocument () <AVCaptureFileOutputDelegate, AVCaptureFileOutputRecordingDelegate>
 
 // Properties for internal use
-@property (retain) AVCaptureDeviceInput *videoDeviceInput;
-@property (retain) AVCaptureDeviceInput *audioDeviceInput;
+@property (strong) AVCaptureDeviceInput *videoDeviceInput;
+@property (strong) AVCaptureDeviceInput *audioDeviceInput;
 @property (readonly) BOOL selectedVideoDeviceProvidesAudio;
-@property (retain) AVCaptureAudioPreviewOutput *audioPreviewOutput;
-@property (retain) AVCaptureMovieFileOutput *movieFileOutput;
-@property (retain) AVCaptureVideoPreviewLayer *previewLayer;
-@property (assign) NSTimer *audioLevelTimer;
-@property (retain) NSArray *observers;
+@property (strong) AVCaptureAudioPreviewOutput *audioPreviewOutput;
+@property (strong) AVCaptureMovieFileOutput *movieFileOutput;
+@property (strong) AVCaptureVideoPreviewLayer *previewLayer;
+@property (weak) NSTimer *audioLevelTimer;
+@property (strong) NSArray *observers;
 
 // Methods for internal use
 - (void)refreshDevices;
@@ -163,22 +163,8 @@
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     for (id observer in self.observers)
         [notificationCenter removeObserver:observer];
-    [observers release];
 }
 
-- (void)dealloc
-{
-    [videoDevices release];
-    [audioDevices release];
-    [session release];
-    [audioPreviewOutput release];
-    [movieFileOutput release];
-    [previewLayer release];
-    [videoDeviceInput release];
-    [audioDeviceInput release];
-    
-    [super dealloc];
-}
 
 - (NSString *)windowNibName
 {
@@ -197,7 +183,6 @@
     newPreviewLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
     [previewViewLayer addSublayer:newPreviewLayer];
     self.previewLayer = newPreviewLayer;
-    [newPreviewLayer release];
     
     // Start the session
     [self.session startRunning];
@@ -439,7 +424,7 @@
     if (record) {
         // Record to a temporary file, which the user will relocate when recording is finished
         char *tempNameBytes = tempnam(NSTemporaryDirectory().fileSystemRepresentation, "AVRecorder_");
-        NSString *tempName = [[[NSString alloc] initWithBytesNoCopy:tempNameBytes length:strlen(tempNameBytes) encoding:NSUTF8StringEncoding freeWhenDone:YES] autorelease];
+        NSString *tempName = [[NSString alloc] initWithBytesNoCopy:tempNameBytes length:strlen(tempNameBytes) encoding:NSUTF8StringEncoding freeWhenDone:YES];
         
         [self.movieFileOutput startRecordingToOutputFileURL:[NSURL fileURLWithPath:[tempName stringByAppendingPathExtension:@"mov"]]
                                             recordingDelegate:self];
