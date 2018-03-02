@@ -6,6 +6,8 @@
 //  Copyright © 2018 Ichi Kanaya. All rights reserved.
 //
 
+#import <CoreImage/CoreImage.h>
+
 #import "ViewController.h"
 
 @implementation ViewController
@@ -70,11 +72,18 @@
                                       kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
     CGColorSpaceRelease(colorSpace);
     
-    CGImageRef cgImage;
-    NSImage *image;
-    cgImage = CGBitmapContextCreateImage(cgContext);
-    image = [[NSImage alloc] initWithCGImage: cgImage
-                                        size: NSMakeSize(width, height)];
+    CGImageRef cgImage = CGBitmapContextCreateImage(cgContext);
+    
+    CIImage *input = [CIImage imageWithCGImage: cgImage];
+    CIFilter *filter = [CIFilter filterWithName: @"CISepiaTone"];
+    [filter setValue: input forKey: kCIInputImageKey];
+    [filter setValue: @0.5 forKey: kCIInputIntensityKey];
+    CIImage *output = filter.outputImage;
+    CIContext *ciContext = [CIContext context];
+    CGImageRef filtered = [ciContext createCGImage: output
+                                          fromRect: input.extent];
+    NSImage *image = [[NSImage alloc] initWithCGImage: filtered // cgImage
+                                                 size: NSMakeSize(width, height)];
     CGImageRelease(cgImage);
     CGContextRelease(cgContext);
     
