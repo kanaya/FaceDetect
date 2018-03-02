@@ -73,7 +73,9 @@
     CGColorSpaceRelease(colorSpace);
     
     CGImageRef cgImage = CGBitmapContextCreateImage(cgContext);
-    
+    NSImage *image = [[NSImage alloc] initWithCGImage: cgImage
+                                                 size: NSMakeSize(width, height)];
+
     CIImage *input = [CIImage imageWithCGImage: cgImage];
     CIContext *ciContext = [CIContext context];
     NSDictionary *opts = @{ CIDetectorAccuracy: CIDetectorAccuracyHigh };
@@ -98,9 +100,6 @@
         }
 #endif
     }
-    
-    NSImage *image = [[NSImage alloc] initWithCGImage: cgImage
-                                                 size: NSMakeSize(width, height)];
     CGImageRelease(cgImage);
     CGContextRelease(cgContext);
     
