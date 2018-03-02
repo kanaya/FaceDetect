@@ -75,14 +75,31 @@
     CGImageRef cgImage = CGBitmapContextCreateImage(cgContext);
     
     CIImage *input = [CIImage imageWithCGImage: cgImage];
-    CIFilter *filter = [CIFilter filterWithName: @"CISepiaTone"];
-    [filter setValue: input forKey: kCIInputImageKey];
-    [filter setValue: @0.5 forKey: kCIInputIntensityKey];
-    CIImage *output = filter.outputImage;
     CIContext *ciContext = [CIContext context];
-    CGImageRef filtered = [ciContext createCGImage: output
-                                          fromRect: input.extent];
-    NSImage *image = [[NSImage alloc] initWithCGImage: filtered // cgImage
+    NSDictionary *opts = @{ CIDetectorAccuracy: CIDetectorAccuracyHigh };
+    CIDetector *detector = [CIDetector detectorOfType: CIDetectorTypeFace
+                                              context: ciContext
+                                              options: opts];
+    NSArray *features = [detector featuresInImage: input];
+    for (CIFaceFeature *f in features) {
+#if 1
+        NSLog(@"Face.");
+#else
+        NSLog(@"%@", NSStringFromRect(f.bounds));
+        
+        if (f.hasLeftEyePosition) {
+            NSLog(@"Left eye %g %g", f.leftEyePosition.x, f.leftEyePosition.y);
+        }
+        if (f.hasRightEyePosition) {
+            NSLog(@"Right eye %g %g", f.rightEyePosition.x, f.rightEyePosition.y);
+        }
+        if (f.hasMouthPosition) {
+            NSLog(@"Mouth %g %g", f.mouthPosition.x, f.mouthPosition.y);
+        }
+#endif
+    }
+    
+    NSImage *image = [[NSImage alloc] initWithCGImage: cgImage
                                                  size: NSMakeSize(width, height)];
     CGImageRelease(cgImage);
     CGContextRelease(cgContext);
