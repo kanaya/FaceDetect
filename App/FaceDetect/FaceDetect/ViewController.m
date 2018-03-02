@@ -20,7 +20,7 @@
     [super viewDidLoad];
 
     // Do any additional setup after loading the view.
-    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType: AVMediaTypeVideo];  // Failes.
+    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType: AVMediaTypeVideo];
     AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice: device
                                                                               error: NULL];
     NSDictionary *settings = @{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt: kCVPixelFormatType_32BGRA]};
